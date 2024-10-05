@@ -1,0 +1,41 @@
+{
+  "prod": {
+    "driver": "pg",
+    "host": "127.0.0.1",
+    "database": {
+      "ENV": "DB_NAME"
+    },
+    "user": {
+      "ENV": "DB_USER"
+    },
+    "password": {
+      "ENV": "DB_PASS"
+    }
+  },
+  "dev": {
+    "driver": "pg",
+    "host": "127.0.0.1",
+    "database": {
+      "ENV": "DB_NAME_DEV"
+    },
+    "user": {
+      "ENV": "DB_USER"
+    },
+    "password": {
+      "ENV": "DB_PASS"
+    }
+  },
+  "test": {
+    "driver": "pg",
+    "host": "127.0.0.1",
+    "database": {
+      "ENV": "DB_NAME_TEST"
+    },
+    "user": {
+      "ENV": "DB_USER"
+    },
+    "password": {
+      "ENV": "DB_PASS"
+    }
+  }
+}
