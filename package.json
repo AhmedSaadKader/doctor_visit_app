@@ -2,9 +2,19 @@
   "name": "doctor_visit_app",
   "version": "1.0.0",
   "description": "",
-  "main": "setup.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "sleep 3 && node dist/index.js",
+    "nodemon": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "npx tsc",
+    "createdb": "db-migrate db:create doctor_visit",
+    "migrate": "db-migrate up",
+    "watch": "tsc-watch --onSuccess \"node ./dist/server.js\"",
+    "jest": "jest --coverage",
+    "test": "set ENV=test&& db-migrate db:drop doctor_visit_test && db-migrate db:create doctor_visit_test && db-migrate --env test up && npm run build && npm run jest && db-migrate db:drop doctor_visit_test",
+    "test:coverage": "npm run build && npx nyc --reporter=html --reporter=text --check-coverage npm run test",
+    "lint": "eslint src/**/*.ts",
+    "prettier": "prettier --config .prettierrc --write src/**/*.ts"
   },
   "keywords": [],
   "author": "",
@@ -13,20 +23,29 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "pg": "^8.13.0",
     "prompt-sync": "^4.2.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.13",
+    "@types/pg": "^8.11.10",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/parser": "^8.8.0",
+    "db-migrate-pg": "^1.5.2",
     "eslint": "^9.12.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "jasmine": "^5.3.1",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.7",
     "prettier": "^3.3.3",
     "supertest": "^7.0.0",
-    "typescript": "^5.6.2"
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0"
   },
-  "type": "module"
+  "engines": {
+    "node": ">=14.16"
+  }
 }
