@@ -23,7 +23,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
-    "pg": "^8.13.0",
     "prompt-sync": "^4.2.0"
   },
   "devDependencies": {
@@ -44,8 +43,5 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0"
-  },
-  "engines": {
-    "node": ">=14.16"
   }
 }

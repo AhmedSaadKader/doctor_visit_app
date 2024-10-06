@@ -261,6 +261,7 @@ fs.writeFileSync('src/database.ts', `
    DB_USER_TEST,
    DB_PASS_TEST,
    DB_PORT_TEST,
+   ENV
   } = process.env;
 
   // Create a new Pool instance for managing PostgreSQL connections
@@ -396,10 +397,9 @@ fs.writeFileSync('eslint.config.mjs', `
 
 const packageJsonPath = path.join(process.cwd(), 'package.json');
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-packageJson.type = 'module';
 packageJson.scripts = {
   start: "sleep 3 && node dist/index.js",
-  nodemon: "ts-node-dev --respawn --transpile-only src/index.ts",
+  dev: "ts-node-dev --respawn --transpile-only src/index.ts",
   build: "npx tsc",
   createdb: `db-migrate db:create ${DB_NAME}`,
   migrate: "db-migrate up",

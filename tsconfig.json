@@ -2,23 +2,38 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",
-    "lib": ["ES2020", "DOM"],
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
     "outDir": "./dist",
     "strict": true,
     "noImplicitAny": true,
-    "typeRoots": ["./types", "node_modules"],
+    "typeRoots": [
+      "./types",
+      "node_modules"
+    ],
     "moduleResolution": "node",
     "sourceMap": true,
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "noImplicitThis": true,
-    "types": ["jest"],
+    "types": [
+      "jest"
+    ],
     "esModuleInterop": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
-  "ts-node": {
+  "include": [
+    "src/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "ts- node": {
     "transpileOnly": true,
     "files": true
   },
-  "exclude": ["node_modules", "./coverage", "./dist"]
+  "exclude": [
+    "node_modules",
+    "./coverage",
+    "./dist"
+  ]
 }
