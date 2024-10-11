@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { execSync } = require('child_process')
+const { execSync } = require('child_process');
 const path = require('path');
 
 // Function to create directories if they don't exist
@@ -16,15 +16,13 @@ execSync('npm install prompt-sync');
 
 const prompt = require('prompt-sync')();
 
-
 // Function to re-prompt if input is empty
 function getInput(fieldName, defaultValue = '') {
   let input = '';
   while (!input) {
     if (defaultValue)
       input = prompt(`Enter ${fieldName} (default: ${defaultValue}): `);
-    else
-      input = prompt(`Enter ${fieldName}: `);
+    else input = prompt(`Enter ${fieldName}: `);
     if (!input && defaultValue) {
       input = defaultValue;
       console.log(`Using default value for ${fieldName}: ${input}`);
@@ -35,17 +33,22 @@ function getInput(fieldName, defaultValue = '') {
 
 // Prompt user for input with re-prompting if left empty
 const PROJECT_NAME = getInput('project name');
-const DB_NAME = getInput('base database name (will be used for prod, dev, and test)');
+const DB_NAME = getInput(
+  'base database name (will be used for prod, dev, and test)'
+);
 const DB_PORT = getInput('database port', '5432'); // Set default value for DB_PORT
 const DB_USER = getInput('database user');
 const DB_PASS = getInput('database password');
 const DB_NAME_DEV = DB_NAME + '_dev';
 const DB_NAME_TEST = DB_NAME + '_test';
 
-
 // Initialize npm and install dependencies
-execSync('npm install express dotenv cors');
-execSync('npm install --save-dev nodemon eslint prettier eslint-config-prettier eslint-plugin-prettier @typescript-eslint/parser jest ts-jest @types/jest supertest @types/supertest @types/express @types/cors db-migrate-pg ts-node @types/pg ts-node-dev');
+execSync(
+  'npm install express dotenv cors cookie-parser firebase firebase-admin'
+);
+execSync(
+  'npm install --save-dev nodemon eslint prettier eslint-config-prettier eslint-plugin-prettier @typescript-eslint/parser jest ts-jest @types/jest supertest @types/supertest @types/express @types/cors db-migrate-pg ts-node @types/pg ts-node-dev @types/cookie-parser'
+);
 
 // Create folder structure (Cross-platform)
 createDirectories([
@@ -57,7 +60,9 @@ createDirectories([
 ]);
 
 // Create starter files
-fs.writeFileSync('src/index.ts', `
+fs.writeFileSync(
+  'src/index.ts',
+  `
   import express, { Request, Response } from 'express';
   import dotenv from 'dotenv';
   import cors from 'cors';
@@ -110,36 +115,46 @@ fs.writeFileSync('src/index.ts', `
   
   // Export the app instance for testing or other use
   export default app;
-  `);
+  `
+);
 // Create tsconfig.json
-fs.writeFileSync('tsconfig.json', JSON.stringify({
-
-  compilerOptions: {
-    target: "es2020",
-    module: "commonjs",
-    lib: ["ES2020", "DOM"],
-    outDir: "./dist",
-    strict: true,
-    noImplicitAny: true,
-    typeRoots: ["./types", "node_modules"],
-    moduleResolution: "node",
-    sourceMap: true,
-    strictFunctionTypes: true,
-    strictNullChecks: true,
-    noImplicitThis: true,
-    types: ["jest"],
-    esModuleInterop: true
-  },
-  include: ["src/**/*.ts", "tests/**/*.ts"],
-  ["ts- node"]: {
-    transpileOnly: true,
-    files: true
-  },
-  exclude: ["node_modules", "./coverage", "./dist"]
-}, null, 2));
+fs.writeFileSync(
+  'tsconfig.json',
+  JSON.stringify(
+    {
+      compilerOptions: {
+        target: 'es2020',
+        module: 'commonjs',
+        lib: ['ES2020', 'DOM'],
+        outDir: './dist',
+        strict: true,
+        noImplicitAny: true,
+        skipLibCheck: true,
+        typeRoots: ['./types', 'node_modules'],
+        moduleResolution: 'node',
+        sourceMap: true,
+        strictFunctionTypes: true,
+        strictNullChecks: true,
+        noImplicitThis: true,
+        types: ['jest'],
+        esModuleInterop: true
+      },
+      include: ['src/**/*.ts', 'tests/**/*.ts'],
+      ['ts- node']: {
+        transpileOnly: true,
+        files: true
+      },
+      exclude: ['node_modules', './coverage', './dist']
+    },
+    null,
+    2
+  )
+);
 
 // Create .env file
-fs.writeFileSync('.env', `
+fs.writeFileSync(
+  '.env',
+  `
   DB_HOST_PROD=localhost
   DB_NAME_PROD=${DB_NAME}
   DB_PORT_PROD=${DB_PORT}
@@ -153,73 +168,97 @@ fs.writeFileSync('.env', `
   DB_PASS_DEV=${DB_PASS}
   
   DB_HOST_TEST=localhost
-  DB_NAME_TEST=doctor_visit_test
+  DB_NAME_TEST=${DB_NAME_TEST}
   DB_PORT_TEST=${DB_PORT}
   DB_USER_TEST=${DB_USER}
   DB_PASS_TEST=${DB_PASS}
   PORT=5000
   ENV=dev
-  `);
+  `
+);
 
 // Setup ESLint and Prettier
-fs.writeFileSync('.eslintrc.json', JSON.stringify({
-  root: true,
-  parser: "@typescript-eslint/parser",
-  plugins: ["prettier"],
-  extends: ["eslint:recommended", "prettier"],
-  rules: {
-    "prettier/prettier": "error",
-    "no-use-before-define": ["error", { "functions": true, "classes": true }],
-    "no-var": "error",
-    "prefer-const": "error"
-  },
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: "module"
-  },
-  env: {
-    node: true,
-    es6: true
-  }
-}, null, 2));
+fs.writeFileSync(
+  '.eslintrc.json',
+  JSON.stringify(
+    {
+      root: true,
+      parser: '@typescript-eslint/parser',
+      plugins: ['prettier'],
+      extends: ['eslint:recommended', 'prettier'],
+      rules: {
+        'prettier/prettier': 'error',
+        'no-use-before-define': ['error', { functions: true, classes: true }],
+        'no-var': 'error',
+        'prefer-const': 'error'
+      },
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: 'module'
+      },
+      env: {
+        node: true,
+        es6: true
+      }
+    },
+    null,
+    2
+  )
+);
 
 // Create .prettierrc file
-fs.writeFileSync('.prettierrc', JSON.stringify({
-  semi: true,
-  trailingComma: "none",
-  singleQuote: true,
-  printWidth: 80
-}, null, 2));
+fs.writeFileSync(
+  '.prettierrc',
+  JSON.stringify(
+    {
+      semi: true,
+      trailingComma: 'none',
+      singleQuote: true,
+      printWidth: 80
+    },
+    null,
+    2
+  )
+);
 
 // Create database configuration with dev, test, and production
-fs.writeFileSync('database.json', JSON.stringify({
-  prod: {
-    driver: "pg",
-    host: { "ENV": "DB_HOST_PROD" },
-    database: { "ENV": "DB_NAME_PROD" },
-    user: { "ENV": "DB_USER_PROD" },
-    password: { "ENV": "DB_PASS_PROD" },
-    port: { "ENV": "DB_PORT_PROD" }
-  },
-  dev: {
-    driver: "pg",
-    host: { "ENV": "DB_HOST_DEV" },
-    database: { "ENV": "DB_NAME_DEV" },
-    user: { "ENV": "DB_USER_DEV" },
-    password: { "ENV": "DB_PASS_DEV" },
-    port: { "ENV": "DB_PORT_DEV" }
-  },
-  test: {
-    driver: "pg",
-    host: { "ENV": "DB_HOST_TEST" },
-    database: { "ENV": "DB_NAME_TEST" },
-    user: { "ENV": "DB_USER_TEST" },
-    password: { "ENV": "DB_PASS_TEST" },
-    port: { "ENV": "DB_PORT_TEST" }
-  }
-}, null, 2));
+fs.writeFileSync(
+  'database.json',
+  JSON.stringify(
+    {
+      prod: {
+        driver: 'pg',
+        host: { ENV: 'DB_HOST_PROD' },
+        database: { ENV: 'DB_NAME_PROD' },
+        user: { ENV: 'DB_USER_PROD' },
+        password: { ENV: 'DB_PASS_PROD' },
+        port: { ENV: 'DB_PORT_PROD' }
+      },
+      dev: {
+        driver: 'pg',
+        host: { ENV: 'DB_HOST_DEV' },
+        database: { ENV: 'DB_NAME_DEV' },
+        user: { ENV: 'DB_USER_DEV' },
+        password: { ENV: 'DB_PASS_DEV' },
+        port: { ENV: 'DB_PORT_DEV' }
+      },
+      test: {
+        driver: 'pg',
+        host: { ENV: 'DB_HOST_TEST' },
+        database: { ENV: 'DB_NAME_TEST' },
+        user: { ENV: 'DB_USER_TEST' },
+        password: { ENV: 'DB_PASS_TEST' },
+        port: { ENV: 'DB_PORT_TEST' }
+      }
+    },
+    null,
+    2
+  )
+);
 
-fs.writeFileSync('src/tests/index.test.ts', `
+fs.writeFileSync(
+  'src/tests/index.test.ts',
+  `
   import { describe, expect, afterAll, it } from '@jest/globals';
   import request from 'supertest';
   import app, { server } from '../index';  // Adjust the import path according to your actual setup
@@ -236,9 +275,12 @@ fs.writeFileSync('src/tests/index.test.ts', `
       server.close(done);
     });
   });
-  `);
+  `
+);
 
-fs.writeFileSync('src/database.ts', `
+fs.writeFileSync(
+  'src/database.ts',
+  `
   import dotenv from 'dotenv';
   import { Pool } from 'pg';
 
@@ -307,10 +349,13 @@ fs.writeFileSync('src/database.ts', `
       password: DB_PASS_PROD,
     });
 }
-  `)
+  `
+);
 
 // Create jest.config.ts
-fs.writeFileSync('jest.config.ts', `
+fs.writeFileSync(
+  'jest.config.ts',
+  `
   import type { Config } from '@jest/types';
   
   const config: Config.InitialOptions = {
@@ -322,17 +367,27 @@ fs.writeFileSync('jest.config.ts', `
   };
   
   export default config;
-  `);
+  `
+);
 
 // Create typedoc.json
-fs.writeFileSync('typedoc.json', JSON.stringify({
-  entryPoints: ["src/index.ts"],
-  out: "docs",
-  exclude: ["**/node_modules/**", "**/test/**"]
-}, null, 2));
+fs.writeFileSync(
+  'typedoc.json',
+  JSON.stringify(
+    {
+      entryPoints: ['src/index.ts'],
+      out: 'docs',
+      exclude: ['**/node_modules/**', '**/test/**']
+    },
+    null,
+    2
+  )
+);
 
 // Create eslint.config.mjs
-fs.writeFileSync('eslint.config.mjs', `
+fs.writeFileSync(
+  'eslint.config.mjs',
+  `
   import prettier from 'eslint-plugin-prettier';
   import typescriptEslint from '@typescript-eslint/eslint-plugin';
   import globals from 'globals';
@@ -393,22 +448,24 @@ fs.writeFileSync('eslint.config.mjs', `
       },
     },
   ];
-  `);
+  `
+);
 
 const packageJsonPath = path.join(process.cwd(), 'package.json');
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 packageJson.scripts = {
-  start: "sleep 3 && node dist/index.js",
-  dev: "ts-node-dev --respawn --transpile-only src/index.ts",
-  build: "npx tsc",
+  start: 'sleep 3 && node dist/index.js',
+  dev: 'ts-node-dev --respawn --transpile-only src/index.ts',
+  build: 'npx tsc',
   createdb: `db-migrate db:create ${DB_NAME}`,
-  migrate: "db-migrate up",
-  watch: "tsc-watch --onSuccess \"node ./dist/server.js\"",
-  jest: "jest --coverage",
+  migrate: 'db-migrate up',
+  watch: 'tsc-watch --onSuccess "node ./dist/server.js"',
+  jest: 'jest --coverage',
   test: `set ENV=test&& db-migrate db:drop ${DB_NAME_TEST} && db-migrate db:create ${DB_NAME_TEST} && db-migrate --env test up && npm run build && npm run jest && db-migrate db:drop ${DB_NAME_TEST}`,
-  ['test:coverage']: "npm run build && npx nyc --reporter=html --reporter=text --check-coverage npm run test",
-  lint: "eslint src/**/*.ts",
-  prettier: "prettier --config .prettierrc --write src/**/*.ts"
+  ['test:coverage']:
+    'npm run build && npx nyc --reporter=html --reporter=text --check-coverage npm run test',
+  lint: 'eslint src/**/*.ts',
+  prettier: 'prettier --config .prettierrc --write src/**/*.ts'
 };
 fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 

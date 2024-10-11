@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "sleep 3 && node dist/index.js",
-    "nodemon": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "npx tsc",
     "createdb": "db-migrate db:create doctor_visit",
     "migrate": "db-migrate up",
@@ -20,12 +20,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.0",
+    "express": "^4.21.1",
+    "firebase": "^10.14.1",
+    "firebase-admin": "^12.6.0",
     "prompt-sync": "^4.2.0"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.13",
