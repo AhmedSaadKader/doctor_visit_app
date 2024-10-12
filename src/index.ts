@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cookeiParser from 'cookie-parser';
 import firebaseRouter from './routes/firebaseAuthRoutes';
+import doctorsRouter from './routes/doctorRoutes';
 
 // Load environment variables from a .env file into process.env
 dotenv.config();
@@ -47,6 +48,7 @@ app.get('/', function (req: Request, res: Response) {
 });
 
 app.use(apiVersion + '/users', firebaseRouter);
+app.use(apiVersion + '/doctors', doctorsRouter);
 
 // Start the server and listen for incoming requests
 export const server = app.listen(port, () => {

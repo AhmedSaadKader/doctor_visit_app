@@ -44,4 +44,4 @@ if (typeof window !== 'undefined') {
   console.log('Not a browser environment - Analytics skipped');
 }
 
-export { app, auth };
+export { app, auth, admin };

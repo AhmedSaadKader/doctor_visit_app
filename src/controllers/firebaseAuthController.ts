@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { auth } from '../firebase/firebase';
+
 import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
@@ -7,22 +8,36 @@ import {
   signInWithEmailAndPassword,
   signOut
 } from 'firebase/auth';
+import { UserModel } from '../models/userModel';
+import { DoctorModel } from '../models/doctorModel';
+
+const userModel = new UserModel();
+const doctorModel = new DoctorModel();
 
 export const registerUser = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { email, password } = req.body;
+  const {
+    email,
+    password,
+    first_name,
+    last_name,
+    user_type,
+    specialty,
+    location
+  } = req.body;
 
-  if (!email || !password) {
+  if (!email || !password || !first_name || !last_name || !user_type) {
     return res.status(422).json({
-      error: 'Email and password are required'
+      error:
+        'Email, password, first name, last name, and user type are required'
     });
   }
 
   try {
-    // Create user with email and password
+    // Create user with email and password in Firebase
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -30,11 +45,37 @@ export const registerUser = async (
     );
 
     if (userCredential.user) {
+      const uid = userCredential.user.uid;
+
+      // Insert the user into PostgreSQL using UserModel
+      await userModel.create({
+        uid,
+        first_name,
+        last_name,
+        email,
+        user_type
+      });
+
       // Send verification email
       await sendEmailVerification(userCredential.user);
 
+      if (user_type === 'doctor') {
+        if (!specialty || !location) {
+          return res.status(422).json({
+            error: 'Specialty and location are required for doctors'
+          });
+        }
+
+        await doctorModel.create({
+          user_uid: uid,
+          specialty,
+          location
+        });
+      }
+
       return res.status(201).json({
-        message: 'Verification email sent! User created successfully!'
+        message:
+          'Verification email sent! User created successfully in Firebase and PostgreSQL!'
       });
     } else {
       return res.status(400).json({ error: 'User not created successfully' });
@@ -58,16 +99,24 @@ export const loginUser = async (
   }
 
   try {
-    // Sign in the user with email and password
+    // Sign in the user with email and password in Firebase
     const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
       password
     );
 
-    // If the user is successfully signed in
     if (userCredential.user) {
       const idToken = await userCredential.user.getIdToken();
+      const uid = userCredential.user.uid;
+
+      // Optionally, you can check the user in PostgreSQL
+      const user = await userModel.findByUID(uid);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found in database' });
+      }
+
       return res
         .status(200)
         .cookie('access_token', idToken, {
@@ -76,8 +125,8 @@ export const loginUser = async (
         .json({
           message: 'User logged in successfully!',
           user: {
-            uid: userCredential.user.uid,
-            email: userCredential.user.email
+            uid: user.uid,
+            email: user.email
           }
         });
     } else {
@@ -86,7 +135,7 @@ export const loginUser = async (
   } catch (error) {
     const errorMessage =
       (error as Error).message || 'An error occurred during login';
-    res.status(500).json({ error: errorMessage });
+    return res.status(500).json({ error: errorMessage });
   }
 };
 

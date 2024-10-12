@@ -52,5 +52,6 @@
     "port": {
       "ENV": "DB_PORT_TEST"
     }
-  }
+  },
+  "sql-file": "true"
 }
