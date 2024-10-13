@@ -14,7 +14,10 @@ import { DoctorModel } from '../models/doctorModel';
 const userModel = new UserModel();
 const doctorModel = new DoctorModel();
 
-export const registerUser = async (req: Request, res: Response) => {
+export const registerUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const {
     email,
     password,
@@ -26,17 +29,19 @@ export const registerUser = async (req: Request, res: Response) => {
   } = req.body;
 
   if (!email || !password || !first_name || !last_name || !user_type) {
-    return res.status(422).json({
+    res.status(422).json({
       error:
         'Email, password, first name, last name, and user type are required'
     });
+    return;
   }
 
   if (user_type === 'doctor') {
     if (!specialty || !location) {
-      return res.status(422).json({
+      res.status(422).json({
         error: 'Specialty and location are required for doctors'
       });
+      return;
     }
   }
 
@@ -71,25 +76,28 @@ export const registerUser = async (req: Request, res: Response) => {
         });
       }
 
-      return res.status(201).json({
+      res.status(201).json({
         message:
           'Verification email sent! User created successfully in Firebase and PostgreSQL!'
       });
+      return;
     } else {
-      return res.status(400).json({ error: 'User not created successfully' });
+      res.status(400).json({ error: 'User not created successfully' });
+      return;
     }
   } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
+    res.status(500).json({ error: (error as Error).message });
   }
 };
 
-export const loginUser = async (req: Request, res: Response) => {
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(422).json({
+    res.status(422).json({
       error: 'Email and password are required'
     });
+    return;
   }
 
   try {
@@ -108,10 +116,11 @@ export const loginUser = async (req: Request, res: Response) => {
       const user = await userModel.findByUID(uid);
 
       if (!user) {
-        return res.status(404).json({ error: 'User not found in database' });
+        res.status(404).json({ error: 'User not found in database' });
+        return;
       }
 
-      return res
+      res
         .status(200)
         .cookie('access_token', idToken, {
           httpOnly: true
@@ -123,74 +132,93 @@ export const loginUser = async (req: Request, res: Response) => {
             email: user.email
           }
         });
+      return;
     } else {
-      return res.status(400).json({ error: 'Login failed. User not found.' });
+      res.status(400).json({ error: 'Login failed. User not found.' });
+      return;
     }
   } catch (error) {
     const errorMessage =
       (error as Error).message || 'An error occurred during login';
-    return res.status(500).json({ error: errorMessage });
+    res.status(500).json({ error: errorMessage });
   }
 };
 
-export const logoutUser = async (req: Request, res: Response) => {
+export const logoutUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     await signOut(auth);
     res.clearCookie('access_token');
-    return res.status(200).json({ message: 'User logged out successfully!' });
+    res.status(200).json({ message: 'User logged out successfully!' });
+    return;
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-export const resetPassword = async (req: Request, res: Response) => {
+export const resetPassword = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(422).json({
+    res.status(422).json({
       error: 'Email is required'
     });
+    return;
   }
 
   try {
     await sendPasswordResetEmail(auth, email);
-    return res
+    res
       .status(200)
       .json({ message: 'Password reset email sent successfully!' });
+    return;
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { uid } = req.params;
   const updates = req.body;
 
   if (!uid) {
-    return res.status(400).json({ error: 'User ID is required' });
+    res.status(400).json({ error: 'User ID is required' });
+    return;
   }
 
   try {
     // Update the user in PostgreSQL
     const updatedUser = await userModel.update(uid, updates);
 
-    return res.status(200).json({
+    res.status(200).json({
       message: 'User updated successfully',
       user: updatedUser
     });
+    return;
   } catch (error) {
     console.error('Error updating user:', error);
-    return res.status(500).json({ error: (error as Error).message });
+    res.status(500).json({ error: (error as Error).message });
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { uid } = req.params;
 
   if (!uid) {
-    return res.status(400).json({ error: 'User ID is required' });
+    res.status(400).json({ error: 'User ID is required' });
+    return;
   }
 
   try {
@@ -207,12 +235,13 @@ export const deleteUser = async (req: Request, res: Response) => {
       await doctorModel.deleteByUserUID(uid);
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       message: 'User deleted successfully from both Firebase and PostgreSQL'
     });
+    return;
   } catch (error) {
     console.error('Error deleting user:', error);
-    return res
+    res
       .status(500)
       .json({ error: 'An error occurred while deleting the user' });
   }

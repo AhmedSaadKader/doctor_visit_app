@@ -6,31 +6,29 @@ const doctorModel = new DoctorModel();
 // Get doctor details by user UID
 export const getDoctorByUID = async (
   req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+  res: Response
+): Promise<void> => {
   const { uid } = req.params;
 
   try {
     const doctor = await doctorModel.findByUserUID(uid);
     if (!doctor) {
-      return res
-        .status(404)
-        .json({ error: `Doctor with UID ${uid} not found` });
+      res.status(404).json({ error: `Doctor with UID ${uid} not found` });
+      return;
     }
 
-    return res.status(200).json(doctor);
+    res.status(200).json(doctor);
+    return;
   } catch (error) {
-    next(error);
+    res.status(500).json(`error: ${(error as Error).message}`);
   }
 };
 
 // Update doctor's details
 export const updateDoctor = async (
   req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+  res: Response
+): Promise<void> => {
   const { uid } = req.params;
   const { specialty, location } = req.body;
 
@@ -39,8 +37,9 @@ export const updateDoctor = async (
       specialty,
       location
     });
-    return res.status(200).json(updatedDoctor);
+    res.status(200).json(updatedDoctor);
+    return;
   } catch (error) {
-    next(error);
+    res.status(500).json(`error: ${(error as Error).message}`);
   }
 };
