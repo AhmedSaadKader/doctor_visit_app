@@ -26,7 +26,9 @@
     "express": "^4.21.1",
     "firebase": "^10.14.1",
     "firebase-admin": "^12.6.0",
-    "prompt-sync": "^4.2.0"
+    "prompt-sync": "^4.2.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",
@@ -35,6 +37,8 @@
     "@types/jest": "^29.5.13",
     "@types/pg": "^8.11.10",
     "@types/supertest": "^6.0.2",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
     "@typescript-eslint/parser": "^8.8.0",
     "db-migrate-pg": "^1.5.2",
     "eslint": "^9.12.0",

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { auth } from '../firebase/firebase';
+import { auth, admin } from '../firebase/firebase';
 
 import {
   createUserWithEmailAndPassword,
@@ -14,11 +14,7 @@ import { DoctorModel } from '../models/doctorModel';
 const userModel = new UserModel();
 const doctorModel = new DoctorModel();
 
-export const registerUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const registerUser = async (req: Request, res: Response) => {
   const {
     email,
     password,
@@ -34,6 +30,14 @@ export const registerUser = async (
       error:
         'Email, password, first name, last name, and user type are required'
     });
+  }
+
+  if (user_type === 'doctor') {
+    if (!specialty || !location) {
+      return res.status(422).json({
+        error: 'Specialty and location are required for doctors'
+      });
+    }
   }
 
   try {
@@ -60,12 +64,6 @@ export const registerUser = async (
       await sendEmailVerification(userCredential.user);
 
       if (user_type === 'doctor') {
-        if (!specialty || !location) {
-          return res.status(422).json({
-            error: 'Specialty and location are required for doctors'
-          });
-        }
-
         await doctorModel.create({
           user_uid: uid,
           specialty,
@@ -85,11 +83,7 @@ export const registerUser = async (
   }
 };
 
-export const loginUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -139,11 +133,7 @@ export const loginUser = async (
   }
 };
 
-export const logoutUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const logoutUser = async (req: Request, res: Response) => {
   try {
     await signOut(auth);
     res.clearCookie('access_token');
@@ -171,5 +161,59 @@ export const resetPassword = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+  const { uid } = req.params;
+  const updates = req.body;
+
+  if (!uid) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    // Update the user in PostgreSQL
+    const updatedUser = await userModel.update(uid, updates);
+
+    return res.status(200).json({
+      message: 'User updated successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const { uid } = req.params;
+
+  if (!uid) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    // 1. Delete user from Firebase
+    const firebaseUser = await admin.auth().getUser(uid);
+    await admin.auth().deleteUser(uid);
+
+    // 2. Delete user from PostgreSQL
+    await userModel.deleteByUID(uid);
+
+    // 3. If the user is a doctor, delete their doctor record
+    const user = await userModel.findByUID(uid);
+    if (user && user.user_type === 'doctor') {
+      await doctorModel.deleteByUserUID(uid);
+    }
+
+    return res.status(200).json({
+      message: 'User deleted successfully from both Firebase and PostgreSQL'
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return res
+      .status(500)
+      .json({ error: 'An error occurred while deleting the user' });
   }
 };

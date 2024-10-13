@@ -60,4 +60,17 @@ export class DoctorModel {
 
     return result.rows[0];
   }
+
+  async deleteByUserUID(user_uid: string): Promise<void> {
+    const sql = `DELETE FROM doctors WHERE user_uid = $1 RETURNING *`;
+    const result = await connectionSQLResult(sql, [user_uid]);
+
+    if (result.rows.length === 0) {
+      throw new Error(
+        `Error deleting doctor with User UID: ${user_uid}. Doctor not found.`
+      );
+    }
+
+    return;
+  }
 }
