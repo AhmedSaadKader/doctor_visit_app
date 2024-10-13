@@ -1,19 +1,17 @@
 import express from 'express';
-import doctorScheduleController from '../controllers/doctorSchedulecontroller';
+import DoctorScheduleController from '../controllers/doctorSchedulecontroller';
 
 const router = express.Router();
 
 // Route to create a new schedule
-router.post('/create', doctorScheduleController.createSchedule);
+router.post('/create', DoctorScheduleController.createSchedule);
+
+router.put('/schedule/:id', DoctorScheduleController.updateSchedule);
+
+router.delete('/schedule/:id', DoctorScheduleController.deleteSchedule);
 
 // Route to get all schedules for a doctor
-router.get('/:doctor_id', doctorScheduleController.getSchedulesByDoctor);
-
-// Route to update a schedule
-router.put('/update', doctorScheduleController.updateSchedule);
-
-// Route to delete a schedule
-router.delete('/delete', doctorScheduleController.deleteSchedule);
+router.get('/:doctor_id', DoctorScheduleController.getSchedulesByDoctor);
 
 export default router;
 
@@ -123,10 +121,18 @@ export default router;
  *       500:
  *         description: Internal server error
  *
- * /schedules/update:
+ * /schedules/schedule/{id}:
  *   put:
  *     summary: Update an existing doctor schedule
  *     tags: [DoctorSchedule]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Schedule ID
+ *         example: 1
  *     requestBody:
  *       required: true
  *       content:
@@ -134,24 +140,15 @@ export default router;
  *           schema:
  *             type: object
  *             properties:
- *               doctor_id:
- *                 type: string
- *                 description: Firebase UID of the doctor
- *                 example: "abc123"
- *               day_of_week:
- *                 type: string
- *                 description: Day of the week for the schedule
- *                 example: "Monday"
- *               start_time:
- *                 type: string
- *                 format: time
- *                 description: Start time for the schedule
- *                 example: "09:00:00"
  *               end_time:
  *                 type: string
  *                 format: time
  *                 description: Updated end time for the schedule
  *                 example: "18:00:00"
+ *               status:
+ *                 type: string
+ *                 description: Updated status for the schedule
+ *                 example: "unavailable"
  *     responses:
  *       200:
  *         description: Schedule updated successfully
@@ -164,37 +161,29 @@ export default router;
  *       500:
  *         description: Internal server error
  *
- * /schedules/delete:
  *   delete:
  *     summary: Delete an existing doctor schedule
  *     tags: [DoctorSchedule]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               doctor_id:
- *                 type: string
- *                 description: Firebase UID of the doctor
- *                 example: "abc123"
- *               day_of_week:
- *                 type: string
- *                 description: Day of the week for the schedule
- *                 example: "Monday"
- *               start_time:
- *                 type: string
- *                 format: time
- *                 description: Start time for the schedule
- *                 example: "09:00:00"
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Schedule ID
+ *         example: 1
  *     responses:
  *       200:
  *         description: Schedule deleted successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/DoctorSchedule'
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success message
+ *                   example: "Schedule deleted successfully"
  *       404:
  *         description: Schedule not found
  *       500:

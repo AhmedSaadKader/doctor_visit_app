@@ -1,5 +1,5 @@
 CREATE TABLE doctors (
-    user_uid VARCHAR(255) PRIMARY KEY REFERENCES users(uid),
+    user_uid VARCHAR(255) PRIMARY KEY REFERENCES users(uid) ON DELETE CASCADE,
     specialty VARCHAR(255),
     location VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

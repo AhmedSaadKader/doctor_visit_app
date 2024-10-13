@@ -41,6 +41,14 @@ export class UserModel {
     return result.rows.length > 0 ? result.rows[0] : null;
   }
 
+  // Method to get all users
+  async findAllUsers(): Promise<UserAttributes[]> {
+    const sql = `SELECT * FROM users`;
+    const result = await connectionSQLResult(sql, []);
+
+    return result.rows;
+  }
+
   // Method to update user details
   async update(
     uid: string,
@@ -92,6 +100,7 @@ export class UserModel {
     return result.rows[0];
   }
 
+  // Method to delete a user by uid
   async deleteByUID(uid: string): Promise<void> {
     const sql = `DELETE FROM users WHERE uid = $1 RETURNING *`;
     const result = await connectionSQLResult(sql, [uid]);

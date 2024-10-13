@@ -1,10 +1,12 @@
 import { connectionSQLResult } from '../utils/sql_query';
 
 interface DoctorSchedule {
+  id: number;
   doctor_id: string;
   day_of_week: string;
   start_time: string; // PostgreSQL TIME can be represented as string
   end_time: string; // PostgreSQL TIME can be represented as string
+  status: string; // New field to track 'available', 'reserved', etc.
   created_at: Date;
   updated_at: Date;
 }
@@ -16,22 +18,25 @@ class DoctorScheduleModel {
     this.tableName = 'doctorSchedule';
   }
 
+  // Create a schedule entry with default status as 'available'
   async createSchedule(
     doctor_id: string,
     day_of_week: string,
     start_time: string,
-    end_time: string
+    end_time: string,
+    status: string = 'available' // Default status
   ): Promise<DoctorSchedule> {
     const query = `
-      INSERT INTO ${this.tableName} (doctor_id, day_of_week, start_time, end_time, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      INSERT INTO ${this.tableName} (doctor_id, day_of_week, start_time, end_time, status, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
       RETURNING *;
     `;
-    const values = [doctor_id, day_of_week, start_time, end_time];
+    const values = [doctor_id, day_of_week, start_time, end_time, status];
     const result = await connectionSQLResult(query, values);
     return result.rows[0] as DoctorSchedule;
   }
 
+  // Fetch schedules by doctor using doctor_id
   async getSchedulesByDoctor(doctor_id: string): Promise<DoctorSchedule[]> {
     const query = `
       SELECT * FROM ${this.tableName}
@@ -42,12 +47,11 @@ class DoctorScheduleModel {
     return result.rows as DoctorSchedule[];
   }
 
+  // Update a schedule by schedule ID, and allow status or other fields to be updated
   async updateSchedule(
-    doctor_id: string,
-    day_of_week: string,
-    start_time: string,
+    id: number,
     updatedFields: Partial<
-      Omit<DoctorSchedule, 'doctor_id' | 'day_of_week' | 'start_time'>
+      Omit<DoctorSchedule, 'id' | 'doctor_id' | 'created_at'>
     >
   ): Promise<DoctorSchedule | null> {
     const fields = Object.keys(updatedFields) as Array<keyof DoctorSchedule>;
@@ -59,25 +63,35 @@ class DoctorScheduleModel {
     const query = `
       UPDATE ${this.tableName}
       SET ${setClause}, updated_at = CURRENT_TIMESTAMP
-      WHERE doctor_id = $${fields.length + 1} AND day_of_week = $${fields.length + 2} AND start_time = $${fields.length + 3}
+      WHERE id = $${fields.length + 1}
       RETURNING *;
     `;
-    values.push(doctor_id, day_of_week, start_time);
+    values.push(String(id));
     const result = await connectionSQLResult(query, values);
     return result.rows[0] ? (result.rows[0] as DoctorSchedule) : null;
   }
 
-  async deleteSchedule(
-    doctor_id: string,
-    day_of_week: string,
-    start_time: string
-  ): Promise<DoctorSchedule | null> {
+  // Delete a schedule by schedule ID
+  async deleteSchedule(id: number): Promise<DoctorSchedule | null> {
     const query = `
       DELETE FROM ${this.tableName}
-      WHERE doctor_id = $1 AND day_of_week = $2 AND start_time = $3
+      WHERE id = $1
       RETURNING *;
     `;
-    const values = [doctor_id, day_of_week, start_time];
+    const values = [id];
+    const result = await connectionSQLResult(query, values);
+    return result.rows[0] ? (result.rows[0] as DoctorSchedule) : null;
+  }
+
+  // Mark a schedule as reserved by ID when creating an appointment
+  async markScheduleAsReserved(id: number): Promise<DoctorSchedule | null> {
+    const query = `
+      UPDATE ${this.tableName}
+      SET status = 'reserved', updated_at = CURRENT_TIMESTAMP
+      WHERE id = $1
+      RETURNING *;
+    `;
+    const values = [id];
     const result = await connectionSQLResult(query, values);
     return result.rows[0] ? (result.rows[0] as DoctorSchedule) : null;
   }

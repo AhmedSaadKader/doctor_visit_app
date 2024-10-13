@@ -5,10 +5,21 @@ import {
   logoutUser,
   resetPassword,
   deleteUser,
-  updateUser
+  updateUser,
+  fetchAllUsers,
+  fetchUserDetails
 } from '../controllers/firebaseAuthController';
 
 const router = Router();
+
+router.get('/', fetchAllUsers);
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.post('/logout', logoutUser);
+router.post('/reset-password', resetPassword);
+router.put('/:uid', updateUser);
+router.delete('/:uid', deleteUser);
+router.get('/:uid', fetchUserDetails);
 
 /**
  * @swagger
@@ -43,6 +54,24 @@ const router = Router();
  *           type: string
  *           format: date-time
  *
+ * /users:
+ *   get:
+ *     summary: Fetch all users
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: Successfully fetched all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Internal server error
  * /users/register:
  *   post:
  *     summary: Register a new user
@@ -88,11 +117,6 @@ const router = Router();
  *         description: Missing required fields
  *       500:
  *         description: Internal server error
- */
-router.post('/register', registerUser);
-
-/**
- * @swagger
  * /users/login:
  *   post:
  *     summary: Login a user
@@ -138,11 +162,6 @@ router.post('/register', registerUser);
  *         description: Missing email or password
  *       500:
  *         description: Internal server error
- */
-router.post('/login', loginUser);
-
-/**
- * @swagger
  * /users/logout:
  *   post:
  *     summary: Logout a user
@@ -160,11 +179,6 @@ router.post('/login', loginUser);
  *                   example: "User logged out successfully!"
  *       500:
  *         description: Internal server error
- */
-router.post('/logout', logoutUser);
-
-/**
- * @swagger
  * /users/reset-password:
  *   post:
  *     summary: Send a password reset email to a user
@@ -195,11 +209,6 @@ router.post('/logout', logoutUser);
  *         description: Email is required
  *       500:
  *         description: Internal server error
- */
-router.post('/reset-password', resetPassword);
-
-/**
- * @swagger
  * /users/{uid}:
  *   put:
  *     summary: Update user details
@@ -266,12 +275,6 @@ router.post('/reset-password', resetPassword);
  *                 error:
  *                   type: string
  *                   example: "Error message"
- */
-router.put('/:uid', updateUser);
-
-/**
- * @swagger
- * /users/{uid}:
  *   delete:
  *     summary: Delete a user by UID
  *     tags: [User]
@@ -299,7 +302,55 @@ router.put('/:uid', updateUser);
  *         description: User not found
  *       500:
  *         description: Internal server error
+ *
+ *   get:
+ *     summary: Fetch user details by UID
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: uid
+ *         required: true
+ *         description: Unique identifier of the user
+ *         schema:
+ *           type: string
+ *           example: "user-unique-id"
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: User ID is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "User ID is required"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "User not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error message"
  */
-router.delete('/:uid', deleteUser);
 
 export default router;

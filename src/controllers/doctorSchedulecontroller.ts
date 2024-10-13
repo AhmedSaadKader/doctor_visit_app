@@ -4,14 +4,15 @@ import DoctorScheduleModel from '../models/doctorScheduleModel';
 class DoctorScheduleController {
   // Create a new doctor schedule
   async createSchedule(req: Request, res: Response) {
-    const { doctor_id, day_of_week, start_time, end_time } = req.body;
+    const { doctor_id, day_of_week, start_time, end_time, status } = req.body;
 
     try {
       const schedule = await DoctorScheduleModel.createSchedule(
         doctor_id,
         day_of_week,
         start_time,
-        end_time
+        end_time,
+        status || 'available' // Default to 'available' if not provided
       );
       res.status(201).json(schedule);
     } catch (error) {
@@ -38,17 +39,21 @@ class DoctorScheduleController {
     }
   }
 
-  // Update a schedule
+  // Update a schedule by its ID
   async updateSchedule(req: Request, res: Response) {
-    const { doctor_id, day_of_week, start_time, end_time } = req.body;
+    const { id } = req.params; // Use schedule ID to identify the schedule to update
+    const { end_time, status } = req.body;
 
     try {
+      const updatedFields: Partial<{ end_time: string; status: string }> = {};
+      if (end_time) updatedFields.end_time = end_time;
+      if (status) updatedFields.status = status;
+
       const updatedSchedule = await DoctorScheduleModel.updateSchedule(
-        doctor_id,
-        day_of_week,
-        start_time,
-        { end_time }
+        parseInt(id, 10), // Ensure ID is passed as a number
+        updatedFields
       );
+
       if (updatedSchedule) {
         res.status(200).json(updatedSchedule);
       } else {
@@ -62,15 +67,13 @@ class DoctorScheduleController {
     }
   }
 
-  // Delete a schedule
+  // Delete a schedule by its ID
   async deleteSchedule(req: Request, res: Response) {
-    const { doctor_id, day_of_week, start_time } = req.body;
+    const { id } = req.params; // Use schedule ID to identify the schedule to delete
 
     try {
       const deletedSchedule = await DoctorScheduleModel.deleteSchedule(
-        doctor_id,
-        day_of_week,
-        start_time
+        parseInt(id, 10)
       );
       if (deletedSchedule) {
         res.status(200).json({ message: 'Schedule deleted successfully' });
