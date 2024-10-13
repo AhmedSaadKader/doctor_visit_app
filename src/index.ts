@@ -25,7 +25,7 @@ if (process.env.ENV == 'production') {
   console.log('production');
   app.use(
     cors({
-      origin: ['https://your-production-url.com'], // Change this to your frontend url
+      origin: [`${process.env.PRODUCTION_URL}`],
       credentials: true,
       exposedHeaders: ['Content-Disposition'],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
