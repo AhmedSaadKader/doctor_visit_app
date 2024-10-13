@@ -3,7 +3,6 @@ import { initializeApp } from 'firebase/app';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import { getAuth } from 'firebase/auth';
 import admin, { ServiceAccount } from 'firebase-admin';
-import serviceAccount from './firebase_service_account.json';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -25,7 +24,23 @@ const firebaseConfig = {
 
 // Initialize Firebase
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as ServiceAccount)
+  credential: admin.credential.cert({
+    type: 'service_account',
+    project_id: 'doctor-visit-6983b',
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    private_key: (process.env.FIREBASE_PRIVATE_KEY as string).replace(
+      /\\n/g,
+      '\n'
+    ),
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_id: process.env.FIREBASE_CLIENT_ID,
+    auth_uri: process.env.FIREBASE_AUTH_URI,
+    token_uri: process.env.FIREBASE_TOKEN_URI,
+    auth_provider_x509_cert_url:
+      process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+    client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+    universe_domain: 'googleapis.com'
+  } as ServiceAccount)
 });
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
