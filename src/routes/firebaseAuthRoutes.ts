@@ -7,12 +7,14 @@ import {
   deleteUser,
   updateUser,
   fetchAllUsers,
-  fetchUserDetails
+  fetchUserDetails,
+  fetchAllDoctors
 } from '../controllers/firebaseAuthController';
 
 const router = Router();
 
 router.get('/', fetchAllUsers);
+router.get('/doctors', fetchAllDoctors);
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/logout', logoutUser);
@@ -72,6 +74,25 @@ router.get('/:uid', fetchUserDetails);
  *                     $ref: '#/components/schemas/User'
  *       500:
  *         description: Internal server error
+ * /users/doctors:
+ *   get:
+ *     summary: Fetch all doctors
+ *     tags: [Doctor]
+ *     responses:
+ *       200:
+ *         description: Successfully fetched all doctors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 doctors:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Internal server error
+ *
  * /users/register:
  *   post:
  *     summary: Register a new user

@@ -49,6 +49,13 @@ export class UserModel {
     return result.rows;
   }
 
+  async findAllDoctors(): Promise<UserAttributes[]> {
+    const sql = `SELECT * FROM users WHERE user_type = 'doctor'`;
+    const result = await connectionSQLResult(sql, []);
+
+    return result.rows;
+  }
+
   // Method to update user details
   async update(
     uid: string,

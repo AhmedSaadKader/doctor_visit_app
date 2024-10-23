@@ -241,11 +241,9 @@ export const deleteUser = async (
     return;
   } catch (error) {
     console.error('Error deleting user:', error);
-    res
-      .status(500)
-      .json({
-        error: `An error occurred while deleting the user. ${(error as Error).message} `
-      });
+    res.status(500).json({
+      error: `An error occurred while deleting the user. ${(error as Error).message} `
+    });
   }
 };
 
@@ -287,6 +285,21 @@ export const fetchAllUsers = async (
     res.status(200).json({ users });
   } catch (error) {
     console.error('Error fetching all users:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+};
+
+export const fetchAllDoctors = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    // Fetch all doctors from PostgreSQL
+    const doctors = await userModel.findAllDoctors();
+
+    res.status(200).json({ doctors });
+  } catch (error) {
+    console.error('Error fetching doctors:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 };
