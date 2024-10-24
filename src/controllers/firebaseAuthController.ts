@@ -78,7 +78,11 @@ export const registerUser = async (
 
       res.status(201).json({
         message:
-          'Verification email sent! User created successfully in Firebase and PostgreSQL!'
+          'Verification email sent! User created successfully in Firebase and PostgreSQL!',
+        user: {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email
+        }
       });
       return;
     } else {

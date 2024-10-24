@@ -114,6 +114,20 @@ router.get('/:uid', fetchUserDetails);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "User logged in successfully!"
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     uid:
+ *                       type: string
+ *                       example: "qwe123abc"
+ *                     email:
+ *                       type: string
+ *                       format: email
+ *                       example: "doctor@example.com"
  *       422:
  *         description: Missing required fields
  *       500:
