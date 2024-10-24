@@ -32,27 +32,25 @@ export class DoctorModel {
   // Method to get all doctors with user details
   async findAllDoctors(): Promise<any[]> {
     const sql = `
-    SELECT u.uid, u.first_name, u.last_name, u.email, u.user_type, 
+    SELECT u.uid, u.first_name, u.last_name, u.email, u.user_type, u.image_url,
            d.specialty, d.location, d.created_at AS doctor_created_at, d.updated_at AS doctor_updated_at
     FROM users u
     JOIN doctors d ON u.uid = d.user_uid;
-  `;
+    `;
     const result = await connectionSQLResult(sql, []);
-
     return result.rows;
   }
 
   // Method to find a doctor by user_uid with joined user details
   async findByUserUID(user_uid: string): Promise<any | null> {
     const sql = `
-    SELECT u.uid, u.first_name, u.last_name, u.email, u.user_type, 
+    SELECT u.uid, u.first_name, u.last_name, u.email, u.user_type, u.image_url,
            d.specialty, d.location, d.created_at AS doctor_created_at, d.updated_at AS doctor_updated_at
     FROM users u
     JOIN doctors d ON u.uid = d.user_uid
     WHERE u.uid = $1;
-  `;
+    `;
     const result = await connectionSQLResult(sql, [user_uid]);
-
     return result.rows.length > 0 ? result.rows[0] : null;
   }
 
