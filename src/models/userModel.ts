@@ -6,6 +6,7 @@ interface UserAttributes {
   last_name?: string;
   email: string;
   user_type: 'doctor' | 'patient';
+  image_url?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -13,17 +14,19 @@ interface UserAttributes {
 export class UserModel {
   // Method to create a new user
   async create(userData: UserAttributes): Promise<UserAttributes> {
-    const { uid, first_name, last_name, email, user_type } = userData;
+    const { uid, first_name, last_name, email, user_type, image_url } =
+      userData;
     const sql = `
-      INSERT INTO users (uid, first_name, last_name, email, user_type)
-      VALUES ($1, $2, $3, $4, $5) 
+      INSERT INTO users (uid, first_name, last_name, email, user_type, image_url)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *`;
     const result = await connectionSQLResult(sql, [
       uid,
       first_name || null,
       last_name || null,
       email,
-      user_type
+      user_type,
+      image_url || null
     ]);
 
     if (result.rows.length === 0) {
@@ -54,9 +57,8 @@ export class UserModel {
     uid: string,
     updates: Partial<UserAttributes>
   ): Promise<UserAttributes> {
-    const { first_name, last_name, email, user_type } = updates;
+    const { first_name, last_name, email, user_type, image_url } = updates;
 
-    // Build the update query dynamically based on provided fields
     const fields = [];
     const values = [];
     let index = 1;
@@ -77,8 +79,11 @@ export class UserModel {
       fields.push(`user_type = $${index++}`);
       values.push(user_type);
     }
+    if (image_url !== undefined) {
+      fields.push(`image_url = $${index++}`); // Allow updating image_url
+      values.push(image_url);
+    }
 
-    // If no fields to update, throw an error
     if (fields.length === 0) {
       throw new Error(`No fields to update for user with UID: ${uid}`);
     }
