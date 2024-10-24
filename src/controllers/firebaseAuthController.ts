@@ -288,17 +288,3 @@ export const fetchAllUsers = async (
     res.status(500).json({ error: (error as Error).message });
   }
 };
-
-export const fetchAllDoctors = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const doctors = await doctorModel.findAllDoctors();
-
-    res.status(200).json({ doctors });
-  } catch (error) {
-    console.error('Error fetching doctors:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-};

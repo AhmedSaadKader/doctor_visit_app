@@ -1,5 +1,9 @@
 import express from 'express';
-import { getDoctorByUID, updateDoctor } from '../controllers/doctorController';
+import {
+  fetchAllDoctors,
+  getDoctorByUID,
+  updateDoctor
+} from '../controllers/doctorController';
 
 const router = express.Router();
 
@@ -7,16 +11,21 @@ const router = express.Router();
  * @swagger
  * components:
  *   schemas:
- *     Doctor:
+ *     DoctorUserDetails:
  *       type: object
- *       required:
- *         - user_uid
- *         - specialty
- *         - location
  *       properties:
- *         user_uid:
+ *         uid:
  *           type: string
- *           description: The Firebase UID, referencing the user
+ *           description: The UID of the user (Firebase UID)
+ *         first_name:
+ *           type: string
+ *           description: The first name of the doctor
+ *         last_name:
+ *           type: string
+ *           description: The last name of the doctor
+ *         email:
+ *           type: string
+ *           description: The email of the doctor
  *         specialty:
  *           type: string
  *           description: The doctor's specialty
@@ -26,12 +35,52 @@ const router = express.Router();
  *         created_at:
  *           type: string
  *           format: date-time
- *           description: When the doctor was created
+ *           description: When the doctor record was created
  *         updated_at:
  *           type: string
  *           format: date-time
  *           description: When the doctor information was last updated
  */
+/**
+ * @swagger
+ * /doctors:
+ *   get:
+ *     summary: Fetch all doctors
+ *     tags: [Doctor]
+ *     responses:
+ *       200:
+ *         description: Successfully fetched all doctors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 doctors:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/DoctorUserDetails'
+ *             example:
+ *               doctors:
+ *                 - uid: "abc123"
+ *                   first_name: "John"
+ *                   last_name: "Doe"
+ *                   email: "johndoe@example.com"
+ *                   specialty: "Cardiology"
+ *                   location: "New York"
+ *                   created_at: "2024-10-23T10:00:00Z"
+ *                   updated_at: "2024-10-23T10:00:00Z"
+ *                 - uid: "def456"
+ *                   first_name: "Jane"
+ *                   last_name: "Smith"
+ *                   email: "janesmith@example.com"
+ *                   specialty: "Pediatrics"
+ *                   location: "Los Angeles"
+ *                   created_at: "2024-10-23T10:05:00Z"
+ *                   updated_at: "2024-10-23T10:05:00Z"
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/', fetchAllDoctors);
 
 /**
  * @swagger
@@ -52,23 +101,16 @@ const router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 user_uid:
- *                   type: string
- *                   example: "abc123"
- *                 specialty:
- *                   type: string
- *                   example: "Cardiology"
- *                 location:
- *                   type: string
- *                   example: "New York"
- *                 created_at:
- *                   type: string
- *                   format: date-time
- *                 updated_at:
- *                   type: string
- *                   format: date-time
+ *               $ref: '#/components/schemas/DoctorUserDetails'
+ *             example:
+ *               uid: "abc123"
+ *               first_name: "John"
+ *               last_name: "Doe"
+ *               email: "johndoe@example.com"
+ *               specialty: "Cardiology"
+ *               location: "New York"
+ *               created_at: "2024-10-23T10:00:00Z"
+ *               updated_at: "2024-10-23T10:00:00Z"
  *       404:
  *         description: Doctor not found
  *       500:
