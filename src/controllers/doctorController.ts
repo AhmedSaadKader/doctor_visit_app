@@ -18,9 +18,9 @@ export const getDoctorByUID = async (
     }
 
     res.status(200).json(doctor);
-    return;
   } catch (error) {
-    res.status(500).json(`error: ${(error as Error).message}`);
+    console.error('Error fetching doctor:', error);
+    res.status(500).json({ error: (error as Error).message });
   }
 };
 

@@ -294,8 +294,7 @@ export const fetchAllDoctors = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Fetch all doctors from PostgreSQL
-    const doctors = await userModel.findAllDoctors();
+    const doctors = await doctorModel.findAllDoctors();
 
     res.status(200).json({ doctors });
   } catch (error) {
