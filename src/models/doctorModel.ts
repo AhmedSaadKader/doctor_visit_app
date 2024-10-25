@@ -90,4 +90,9 @@ export class DoctorModel {
 
     return;
   }
+
+  async deleteAll(): Promise<void> {
+    const sql = 'DELETE FROM doctors';
+    await connectionSQLResult(sql, []);
+  }
 }

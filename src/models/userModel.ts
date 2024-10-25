@@ -116,4 +116,9 @@ export class UserModel {
 
     return;
   }
+
+  async deleteAll(): Promise<void> {
+    const sql = 'DELETE FROM users';
+    await connectionSQLResult(sql, []);
+  }
 }
