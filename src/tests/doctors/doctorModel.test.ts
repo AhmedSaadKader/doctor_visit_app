@@ -21,7 +21,7 @@ describe('Doctor Model Unit Tests', () => {
     const uniqueEmail = `john.doe@example.com`;
 
     newUser = await new UserModel().create({
-      uid: 'unique_uid_12345',
+      uid: 'unique_uid_123456',
       first_name: 'John',
       last_name: 'Doe',
       email: uniqueEmail,
@@ -41,28 +41,27 @@ describe('Doctor Model Unit Tests', () => {
 
   // Test for creating a new doctor
   it('should create a new doctor successfully', async () => {
-    await connectionSQLResult('DELETE FROM doctors', []);
-    await connectionSQLResult('DELETE FROM users', []);
-    const newDoctor = await doctorModel.create({
-      user_uid: 'unique_uid_12345',
+    await doctorModel.create({
+      user_uid: 'unique_uid_123456',
       specialty: 'Cardiology',
       location: 'New York'
     });
+    const foundDoctor = await doctorModel.findByUserUID('unique_uid_123456');
 
-    expect(newDoctor.user_uid).toBe('unique_uid_12345');
-    expect(newDoctor.specialty).toBe('Cardiology');
-    expect(newDoctor.location).toBe('New York');
+    expect(foundDoctor.user_uid).toBe('unique_uid_123456');
+    expect(foundDoctor.specialty).toBe('Cardiology');
+    expect(foundDoctor.location).toBe('New York');
   });
 
   // Test for finding a doctor by user_uid
   it('should find a doctor by user_uid', async () => {
     await doctorModel.create({
-      user_uid: 'unique_uid_12345',
+      user_uid: 'unique_uid_123456',
       specialty: 'Cardiology',
       location: 'New York'
     });
 
-    const foundDoctor = await doctorModel.findByUserUID('unique_uid_12345');
+    const foundDoctor = await doctorModel.findByUserUID('unique_uid_123456');
     expect(foundDoctor).toBeDefined();
     expect(foundDoctor!.specialty).toBe('Cardiology');
   });
@@ -70,7 +69,7 @@ describe('Doctor Model Unit Tests', () => {
   // Test for retrieving all doctors with user details
   it('should retrieve all doctors', async () => {
     await doctorModel.create({
-      user_uid: 'unique_uid_12345',
+      user_uid: 'unique_uid_123456',
       specialty: 'Cardiology',
       location: 'New York'
     });
@@ -82,12 +81,12 @@ describe('Doctor Model Unit Tests', () => {
   // Test for updating a doctor's details
   it('should update doctor details', async () => {
     await doctorModel.create({
-      user_uid: 'unique_uid_12345',
+      user_uid: 'unique_uid_123456',
       specialty: 'Cardiology',
       location: 'New York'
     });
 
-    const updatedDoctor = await doctorModel.update('unique_uid_12345', {
+    const updatedDoctor = await doctorModel.update('unique_uid_123456', {
       specialty: 'Neurology',
       location: 'Boston'
     });
@@ -99,14 +98,14 @@ describe('Doctor Model Unit Tests', () => {
   // Test for deleting a doctor by user_uid
   it('should delete a doctor by user_uid successfully', async () => {
     await doctorModel.create({
-      user_uid: 'unique_uid_123456',
+      user_uid: 'unique_uid_1234566',
       specialty: 'Cardiology',
       location: 'New York'
     });
 
-    await doctorModel.deleteByUserUID('unique_uid_123456');
+    await doctorModel.deleteByUserUID('unique_uid_1234566');
 
-    const doctor = await doctorModel.findByUserUID('unique_uid_123456');
+    const doctor = await doctorModel.findByUserUID('unique_uid_1234566');
     expect(doctor).toBeNull();
   });
 });

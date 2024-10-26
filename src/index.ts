@@ -25,7 +25,7 @@ if (process.env.ENV == 'production') {
   console.log('production');
   app.use(
     cors({
-      origin: '*',
+      origin: false,
       credentials: true,
       exposedHeaders: ['Content-Disposition'],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
